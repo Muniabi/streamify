@@ -9,8 +9,10 @@ import http from 'http'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+// Обновленные пути
 const STORAGE_DIR = path.join(__dirname, 'storage')
-const VIDEO_DIR = path.join(STORAGE_DIR, 'videos')
+const VIDEO_DIR = path.join(__dirname, 'videos') // Изменено для сохранения видео в server/videos
 const DATA_FILE = path.join(STORAGE_DIR, 'videosData.json')
 
 // Создание директорий, если они не существуют

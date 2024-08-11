@@ -1,10 +1,10 @@
 <template>
   <div class="video-form">
-    <form @submit.prevent="submitForm">
+    <form @submit.prevent="submitForm" class="form">
       <input
         type="text"
         v-model="videoUrl"
-        placeholder="Enter YouTube video URL"
+        placeholder="Введите URL-адрес видео на YouTube"
         class="url-input"
       />
       <button type="submit" class="submit-button">Load Video</button>
@@ -27,25 +27,43 @@ const submitForm = () => {
 </script>
 
 <style scoped>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 .video-form {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 2rem;
+  /* margin-top: 2rem; */
+}
+
+@media (max-width: 600px) {
+  .form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
 }
 
 .url-input {
-  padding: 0.5rem;
+  font-size: 16px;
+  padding: 0.6rem;
   border-radius: 8px;
   border: none;
-  width: 300px;
+  width: 340px;
   margin-inline: 10px;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .submit-button {
   padding: 0.5rem 1rem;
   border-radius: 8px;
+  font-size: 14px;
   background-color: #1e88e5;
   color: white;
   border: none;
@@ -53,6 +71,6 @@ const submitForm = () => {
 }
 
 .submit-button:hover {
-  background-color: #1565c0;
+  background-color: #2583ed;
 }
 </style>
