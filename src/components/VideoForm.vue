@@ -52,7 +52,7 @@ const submitForm = () => {
 
 .url-input {
   font-size: 16px;
-  padding: 0.6rem;
+  padding: 0.5rem;
   border-radius: 8px;
   border: none;
   width: 340px;
