@@ -9,10 +9,22 @@ import http from 'http'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+const STORAGE_DIR = path.join(__dirname, 'storage')
 const VIDEO_DIR = path.join(__dirname, 'videos')
+const DATA_FILE = path.join(STORAGE_DIR, 'videosData.json')
+
+// Создание директории для видео и папки хранения данных, если они не существуют
+if (!fs.existsSync(STORAGE_DIR)) {
+  fs.mkdirSync(STORAGE_DIR)
+}
 
 if (!fs.existsSync(VIDEO_DIR)) {
   fs.mkdirSync(VIDEO_DIR)
+}
+
+// Инициализация файла данных, если его нет
+if (!fs.existsSync(DATA_FILE)) {
+  fs.writeFileSync(DATA_FILE, JSON.stringify({}))
 }
 
 const app = express()
@@ -42,14 +54,24 @@ io.on('connection', (socket) => {
 
 app.get('/download', async (req, res) => {
   const videoUrl = req.query.url
-  const videoId = Date.now()
-  const videoPath = path.join(VIDEO_DIR, `${videoId}.mp4`)
 
   if (!videoUrl) {
     return res.status(400).send('Video URL is required')
   }
 
-  // Log request to download video
+  // Проверка, есть ли видео уже в базе данных
+  const data = JSON.parse(fs.readFileSync(DATA_FILE))
+  const existingEntry = Object.values(data).find((entry) => entry.url === videoUrl)
+
+  if (existingEntry) {
+    // Если видео уже есть, возвращаем ID видео
+    return res.status(200).send({ videoId: existingEntry.id })
+  }
+
+  const videoId = Date.now()
+  const videoPath = path.join(VIDEO_DIR, `${videoId}.mp4`)
+
+  // Логирование запроса на загрузку видео
   console.log(`Received request to download video from URL: ${videoUrl}`)
 
   try {
@@ -67,7 +89,7 @@ app.get('/download', async (req, res) => {
         totalBytes,
         speed: 0
       })
-      // Log total bytes
+      // Логирование общего количества байтов
       // console.log(`Total bytes: ${totalBytes}`)
     })
 
@@ -80,13 +102,18 @@ app.get('/download', async (req, res) => {
         totalBytes,
         speed: downloadedBytes / 1024 / ((Date.now() - startTime) / 1000) // KB/s
       })
-      // Removed progress log
+      // Удалено логирование прогресса
       // console.log(`Downloaded ${downloadedBytes} bytes, progress ${progress}%`)
     })
 
     const startTime = Date.now()
     fileStream.on('finish', () => {
-      // Log completion of video download
+      // Обновление данных о видео в JSON файле
+      const newEntry = { id: videoId, url: videoUrl, path: videoPath }
+      data[videoId] = newEntry
+      fs.writeFileSync(DATA_FILE, JSON.stringify(data))
+
+      // Логирование завершения загрузки видео
       console.log(`Video from URL ${videoUrl} has been downloaded to ${videoPath}`)
       res.status(200).send({ videoId })
     })
@@ -110,13 +137,15 @@ app.get('/download', async (req, res) => {
 
 app.get('/stream/:videoId', (req, res) => {
   const { videoId } = req.params
-  const videoPath = path.join(VIDEO_DIR, `${videoId}.mp4`)
+  const data = JSON.parse(fs.readFileSync(DATA_FILE))
+  const videoEntry = data[videoId]
 
-  if (!fs.existsSync(videoPath)) {
-    console.error(`Video not found: ${videoPath}`)
+  if (!videoEntry || !fs.existsSync(videoEntry.path)) {
+    console.error(`Video not found: ${videoId}`)
     return res.status(404).send('Video not found')
   }
 
+  const videoPath = videoEntry.path
   const range = req.headers.range
 
   if (range) {
@@ -152,6 +181,6 @@ app.get('/stream/:videoId', (req, res) => {
 })
 
 server.listen(PORT, () => {
-  // Log server start
+  // Логирование запуска сервера
   console.log(`Server is running on http://localhost:${PORT}`)
 })
