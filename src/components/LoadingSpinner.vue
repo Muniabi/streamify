@@ -4,7 +4,7 @@
       <div class="progress" :style="{ width: progress + '%' }"></div>
     </div>
     <p>
-      {{ progress.toFixed(2) }}% | {{ downloadedMB }} MB of {{ totalMB }} MB | Speed:
+      {{ progress.toFixed(2) }}% | {{ downloadedMB }} MB из {{ totalMB }} MB | Скорость:
       {{ speed }} KB/s
     </p>
   </div>

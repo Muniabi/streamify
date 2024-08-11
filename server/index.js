@@ -19,7 +19,7 @@ const app = express()
 const server = http.createServer(app)
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173', // Убедитесь, что тут правильный адрес вашего клиента
+    origin: 'http://localhost:5173',
     methods: ['GET', 'POST']
   }
 })
@@ -42,25 +42,61 @@ io.on('connection', (socket) => {
 
 app.get('/download', async (req, res) => {
   const videoUrl = req.query.url
-  const videoId = Date.now() // Unique identifier for each video
+  const videoId = Date.now()
   const videoPath = path.join(VIDEO_DIR, `${videoId}.mp4`)
 
   if (!videoUrl) {
     return res.status(400).send('Video URL is required')
   }
 
+  // Log request to download video
   console.log(`Received request to download video from URL: ${videoUrl}`)
 
   try {
     const videoStream = ytdl(videoUrl, { filter: 'audioandvideo', quality: 'highest' })
     const fileStream = fs.createWriteStream(videoPath)
 
-    videoStream.pipe(fileStream)
+    let downloadedBytes = 0
+    let totalBytes = 0
 
+    videoStream.on('response', (response) => {
+      totalBytes = parseInt(response.headers['content-length'], 10)
+      io.emit('download-progress', {
+        progress: 0,
+        downloadedBytes,
+        totalBytes,
+        speed: 0
+      })
+      // Log total bytes
+      // console.log(`Total bytes: ${totalBytes}`)
+    })
+
+    videoStream.on('data', (chunk) => {
+      downloadedBytes += chunk.length
+      const progress = (downloadedBytes / totalBytes) * 100
+      io.emit('download-progress', {
+        progress,
+        downloadedBytes,
+        totalBytes,
+        speed: downloadedBytes / 1024 / ((Date.now() - startTime) / 1000) // KB/s
+      })
+      // Removed progress log
+      // console.log(`Downloaded ${downloadedBytes} bytes, progress ${progress}%`)
+    })
+
+    const startTime = Date.now()
     fileStream.on('finish', () => {
+      // Log completion of video download
       console.log(`Video from URL ${videoUrl} has been downloaded to ${videoPath}`)
       res.status(200).send({ videoId })
     })
+
+    fileStream.on('error', (error) => {
+      console.error(`FileStream error: ${error.message}`)
+      res.status(500).send('Failed to write video file')
+    })
+
+    videoStream.pipe(fileStream)
 
     videoStream.on('error', (error) => {
       console.error(`Error while downloading video: ${error.message}`)
@@ -72,7 +108,6 @@ app.get('/download', async (req, res) => {
   }
 })
 
-// Stream video endpoint
 app.get('/stream/:videoId', (req, res) => {
   const { videoId } = req.params
   const videoPath = path.join(VIDEO_DIR, `${videoId}.mp4`)
@@ -117,5 +152,6 @@ app.get('/stream/:videoId', (req, res) => {
 })
 
 server.listen(PORT, () => {
+  // Log server start
   console.log(`Server is running on http://localhost:${PORT}`)
 })

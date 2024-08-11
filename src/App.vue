@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <header>
-      <h1>Video Downloader</h1>
+      <h1>Streamify Video Downloader</h1>
       <UserCounter />
       <!-- Добавляем компонент UserCounter -->
     </header>

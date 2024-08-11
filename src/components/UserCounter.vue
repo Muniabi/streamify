@@ -29,17 +29,18 @@ export default {
 <style scoped>
 .user-counter {
   display: flex;
+  justify-content: center;
   align-items: center;
   color: white;
   margin-top: 10px;
 }
 
 .status-icon {
-  width: 24px;
-  height: 24px;
+  width: 15px;
+  height: 15px;
   margin-right: 8px;
-  fill: #32cd32; /* Лаймовый цвет */
-  filter: drop-shadow(0 0 8px #00ff00); /* Неоновая тень */
+  fill: #26ff26; /* Лаймовый цвет */
+  filter: drop-shadow(0 0 8px #26ff26); /* Неоновая тень */
 }
 
 .status-icon circle {
