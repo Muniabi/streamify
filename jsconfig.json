@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "ES6", // Или "ES2021", если хотите использовать последнюю версию ECMAScript
+    "lib": ["ES6"], // Или ["ES2021"] для поддержки всех новых фич
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
+}

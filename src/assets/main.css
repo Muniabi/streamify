@@ -1,0 +1,26 @@
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-weight: normal;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #121212;
+  color: white;
+}
+
+input,
+button {
+  outline: none;
+}
+
+input::placeholder {
+  color: #b0bec5;
+}
+
+button {
+  cursor: pointer;
+}
