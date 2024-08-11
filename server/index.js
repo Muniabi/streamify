@@ -10,21 +10,22 @@ import http from 'http'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const STORAGE_DIR = path.join(__dirname, 'storage')
-const VIDEO_DIR = path.join(__dirname, 'videos')
+const VIDEO_DIR = path.join(STORAGE_DIR, 'videos')
 const DATA_FILE = path.join(STORAGE_DIR, 'videosData.json')
 
-// Создание директории для видео и папки хранения данных, если они не существуют
-if (!fs.existsSync(STORAGE_DIR)) {
-  fs.mkdirSync(STORAGE_DIR)
-}
-
-if (!fs.existsSync(VIDEO_DIR)) {
-  fs.mkdirSync(VIDEO_DIR)
+// Создание директорий, если они не существуют
+try {
+  if (!fs.existsSync(STORAGE_DIR)) fs.mkdirSync(STORAGE_DIR)
+  if (!fs.existsSync(VIDEO_DIR)) fs.mkdirSync(VIDEO_DIR)
+} catch (err) {
+  console.error('Ошибка при создании каталогов:', err)
 }
 
 // Инициализация файла данных, если его нет
-if (!fs.existsSync(DATA_FILE)) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify({}))
+try {
+  if (!fs.existsSync(DATA_FILE)) fs.writeFileSync(DATA_FILE, JSON.stringify({}))
+} catch (err) {
+  console.error('Ошибка при инициализации файла данных:', err)
 }
 
 const app = express()
@@ -56,23 +57,27 @@ app.get('/download', async (req, res) => {
   const videoUrl = req.query.url
 
   if (!videoUrl) {
-    return res.status(400).send('Video URL is required')
+    return res.status(400).send('Требуется указать URL-адрес видео')
   }
 
-  // Проверка, есть ли видео уже в базе данных
-  const data = JSON.parse(fs.readFileSync(DATA_FILE))
+  let data
+  try {
+    data = JSON.parse(fs.readFileSync(DATA_FILE))
+  } catch (err) {
+    console.error('Ошибка при чтении файла данных:', err)
+    return res.status(500).send('Internal server error')
+  }
+
   const existingEntry = Object.values(data).find((entry) => entry.url === videoUrl)
 
   if (existingEntry) {
-    // Если видео уже есть, возвращаем ID видео
     return res.status(200).send({ videoId: existingEntry.id })
   }
 
   const videoId = Date.now()
   const videoPath = path.join(VIDEO_DIR, `${videoId}.mp4`)
 
-  // Логирование запроса на загрузку видео
-  console.log(`Received request to download video from URL: ${videoUrl}`)
+  console.log(`Получен запрос на загрузку видео с URL: ${videoUrl}`)
 
   try {
     const videoStream = ytdl(videoUrl, { filter: 'audioandvideo', quality: 'highest' })
@@ -89,8 +94,6 @@ app.get('/download', async (req, res) => {
         totalBytes,
         speed: 0
       })
-      // Логирование общего количества байтов
-      // console.log(`Total bytes: ${totalBytes}`)
     })
 
     videoStream.on('data', (chunk) => {
@@ -100,48 +103,56 @@ app.get('/download', async (req, res) => {
         progress,
         downloadedBytes,
         totalBytes,
-        speed: downloadedBytes / 1024 / ((Date.now() - startTime) / 1000) // KB/s
+        speed: downloadedBytes / 1024 / ((Date.now() - startTime) / 1000)
       })
-      // Удалено логирование прогресса
-      // console.log(`Downloaded ${downloadedBytes} bytes, progress ${progress}%`)
     })
 
     const startTime = Date.now()
     fileStream.on('finish', () => {
-      // Обновление данных о видео в JSON файле
       const newEntry = { id: videoId, url: videoUrl, path: videoPath }
       data[videoId] = newEntry
-      fs.writeFileSync(DATA_FILE, JSON.stringify(data))
-
-      // Логирование завершения загрузки видео
-      console.log(`Video from URL ${videoUrl} has been downloaded to ${videoPath}`)
+      try {
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data))
+      } catch (err) {
+        console.error('Ошибка при записи файла данных:', err)
+        return res.status(500).send('Failed to update video data')
+      }
+      console.log(`Видео с URL ${videoUrl} был загружен в ${videoPath}`)
       res.status(200).send({ videoId })
     })
 
     fileStream.on('error', (error) => {
-      console.error(`FileStream error: ${error.message}`)
+      console.error(`Ошибка файлового потока: ${error.message}`)
       res.status(500).send('Failed to write video file')
     })
 
     videoStream.pipe(fileStream)
 
     videoStream.on('error', (error) => {
-      console.error(`Error while downloading video: ${error.message}`)
+      console.error(`Ошибка при загрузке видео: ${error.message}`)
       res.status(500).send('Failed to download video')
     })
   } catch (error) {
-    console.error(`Error while processing request: ${error.message}`)
+    console.error(`Ошибка при обработке запроса: ${error.message}`)
     res.status(500).send('Failed to process video')
   }
 })
 
 app.get('/stream/:videoId', (req, res) => {
   const { videoId } = req.params
-  const data = JSON.parse(fs.readFileSync(DATA_FILE))
+  let data
+
+  try {
+    data = JSON.parse(fs.readFileSync(DATA_FILE))
+  } catch (err) {
+    console.error('Ошибка при чтении файла данных:', err)
+    return res.status(500).send('Internal Server Error')
+  }
+
   const videoEntry = data[videoId]
 
   if (!videoEntry || !fs.existsSync(videoEntry.path)) {
-    console.error(`Video not found: ${videoId}`)
+    console.error(`Видео не найдено: ${videoId}`)
     return res.status(404).send('Video not found')
   }
 
@@ -152,7 +163,7 @@ app.get('/stream/:videoId', (req, res) => {
     const videoSize = fs.statSync(videoPath).size
     const parts = range.replace(/bytes=/, '').split('-')
     const start = parseInt(parts[0], 10)
-    const end = Math.min(start + 1024 * 1024 - 1, videoSize - 1) // 1MB chunks
+    const end = Math.min(start + 1024 * 1024 - 1, videoSize - 1)
 
     res.writeHead(206, {
       'Content-Range': `bytes ${start}-${end}/${videoSize}`,
@@ -165,7 +176,7 @@ app.get('/stream/:videoId', (req, res) => {
     videoStream.pipe(res)
 
     videoStream.on('error', (error) => {
-      console.error(`Error while streaming video: ${error.message}`)
+      console.error(`Ошибка при потоковой передаче видео: ${error.message}`)
       res.status(500).send('Failed to stream video')
     })
   } else {
@@ -174,13 +185,12 @@ app.get('/stream/:videoId', (req, res) => {
     videoStream.pipe(res)
 
     videoStream.on('error', (error) => {
-      console.error(`Error while streaming video: ${error.message}`)
+      console.error(`Ошибка при потоковой передаче видео: ${error.message}`)
       res.status(500).send('Failed to stream video')
     })
   }
 })
 
 server.listen(PORT, () => {
-  // Логирование запуска сервера
   console.log(`Server is running on http://localhost:${PORT}`)
 })

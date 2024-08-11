@@ -86,3 +86,5 @@ npm run build
 ## Лицензия
 
 Этот проект лицензирован под [MIT License](https://mit-license.org).
+
+https://www.youtube.com/watch?v=xnfg7jzlCdc
