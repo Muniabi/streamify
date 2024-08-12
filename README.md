@@ -55,6 +55,46 @@ npm run dev
 npm run build
 ```
 
+## Файловая структура проекта
+
+```
+streamify/
+├── public/
+│   ├── favicon.ico
+│   └── index.html
+├── src/
+│   ├── assets/
+│   │   └── main.css        # Основные стили проекта
+│   ├── components/       
+│   │   ├── LoadingSpinner.vue   # Лодер пока видео скачивается                                                                                                                                   
+│   │   ├── VideoPlayer.vue     # Компонент для проигрывания видео
+│   │   └── VideoForm.vue       # Форма для ввода ссылки на видео
+│   │   └── UserCounter.vue    # Счетчик пользователей на сайте
+│   ├── views/
+│   │   └── HomePage.vue          # Главная страница
+│   ├── App.vue                 # Главный компонент приложения
+│   ├── main.js                 # Входная точка приложения
+│   ├── router/
+│   │   └── index.js               # Конфигурация маршрутизации (если потребуется)
+├── server/
+│   ├── modules/
+│   │   ├── downloadManager.js  # Модуль для загрузки видео с YouTube
+│   │   ├── streamManager.js    # Модуль для потоковой передачи видео
+│   │   ├── sessionManager.js   # Модуль для управления сессиями
+│   │   ├── metadataManager.js  # Модуль для управления метаданными видео (в разработке)
+│   ├── utils/
+│   │   ├── fileUtils.js        # Утилиты для работы с файлами
+│   │   └── videoUtils.js       # Утилиты для работы с видео
+│   ├── index.js                # Основной серверный код на Node.js
+│   ├── storage/
+│   │   ├── videosData.json     # Метаданные видео (uuid, path)
+│   │   ├── sessions.json       # Сессии
+│   ├── config.js               # Конфигурация приложения (порты, пути и т.д.)
+├── .gitignore
+├── package.json
+└── README.md
+```
+
 ## Рекомендации и улучшения
 
 ### Обработка ошибок при чтении и записи файлов
