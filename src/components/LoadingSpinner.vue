@@ -1,12 +1,15 @@
 <template>
   <div class="loader">
-    <div class="progress-bar">
-      <div class="progress" :style="{ width: progress + '%' }"></div>
+    <div v-if="!isDownloading">Идет подготовка...</div>
+    <div v-else>
+      <div class="progress-bar">
+        <div class="progress" :style="{ width: progress + '%' }"></div>
+      </div>
+      <p>
+        {{ progress.toFixed(2) }}% | {{ downloadedMB }} MB из {{ totalMB }} MB | Скорость:
+        {{ speed }} KB/s
+      </p>
     </div>
-    <p>
-      {{ progress.toFixed(2) }}% | {{ downloadedMB }} MB из {{ totalMB }} MB | Скорость:
-      {{ speed }} KB/s
-    </p>
   </div>
 </template>
 
@@ -19,7 +22,8 @@ export default {
       progress: 0,
       downloadedMB: 0,
       totalMB: 0,
-      speed: 0
+      speed: 0,
+      isDownloading: false
     }
   },
   mounted() {
@@ -30,6 +34,7 @@ export default {
       const socket = io('http://localhost:3000')
 
       socket.on('download-progress', (data) => {
+        this.isDownloading = true // Устанавливаем флаг, когда начинается загрузка
         this.progress = data.progress
         this.downloadedMB = (data.downloadedBytes / 1024 / 1024).toFixed(2)
         this.totalMB = (data.totalBytes / 1024 / 1024).toFixed(2)
