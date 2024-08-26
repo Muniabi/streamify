@@ -17,6 +17,7 @@ coverage
 /cypress/videos/
 /cypress/screenshots/
 /server/videos/*
+/server/storage/*
 
 
 # Editor directories and files

@@ -33,7 +33,7 @@ export default {
         this.progress = data.progress
         this.downloadedMB = (data.downloadedBytes / 1024 / 1024).toFixed(2)
         this.totalMB = (data.totalBytes / 1024 / 1024).toFixed(2)
-        this.speed = data.speed.toFixed(2)
+        this.speed = (data.speed / 1024).toFixed(2) // Преобразование скорости в KB/s
       })
     }
   }
