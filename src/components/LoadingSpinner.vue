@@ -13,7 +13,7 @@
         </div>
         <p>
           {{ progress.toFixed(2) }}% | {{ downloadedMB }} MB из {{ totalMB }} MB | Скорость:
-          {{ speed }} KB/s
+          {{ speed }} MB/s
         </p>
       </div>
     </transition>
