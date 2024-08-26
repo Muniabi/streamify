@@ -37,7 +37,7 @@ export default {
       try {
         // Отправляем запрос на сервер для загрузки видео
         const response = await fetch(
-          `http://147.45.68.254:3000/download?url=${encodeURIComponent(url)}` // Поменять ip адрес
+          `http://localhost:3000/download?url=${encodeURIComponent(url)}` // Поменять ip адрес
         )
 
         if (!response.ok) {
@@ -46,7 +46,7 @@ export default {
 
         const data = await response.json()
         if (data.videoId) {
-          this.videoUrl = `http://147.45.68.254:3000/videos/${data.videoId}.mp4` // Поменять ip адрес
+          this.videoUrl = `http://localhost:3000/videos/${data.videoId}.mp4` // Поменять ip адрес
         } else {
           throw new Error('Invalid response from server')
         }
