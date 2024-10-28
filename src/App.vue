@@ -11,7 +11,7 @@
       <VideoPlayer v-if="!loading && currentVideoUrl" :videoUrl="currentVideoUrl" />
       <!-- История загруженных видео -->
       <div class="video-history" v-if="videoHistory.length > 0">
-        <h2>История загруженных видео:</h2>
+        <h2 class="video-history-header">История загруженных видео:</h2>
         <div v-for="(video, index) in videoHistory" :key="index" class="video-item">
           <VideoPlayer :videoUrl="video.url" />
         </div>
@@ -137,6 +137,10 @@ main {
   width: 80%;
   margin-top: 2rem;
   text-align: center;
+}
+
+.video-history-header {
+  padding-block: 10px;
 }
 
 .video-item {

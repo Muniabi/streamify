@@ -1,20 +1,28 @@
 <template>
   <div class="loader">
-    <!-- Пульсирующий круг и текст "Идет подготовка..." отображается, если isDownloading == false -->
-    <div v-if="!isDownloading" class="preparation">
+    <!-- Пульсирующий круг и текст "Идет подготовка..." отображается, если isDownloading == false и isComplete == false -->
+    <div v-if="!isDownloading && !isComplete" class="preparation">
       <div class="pulse-circle"></div>
       <p>Идет подготовка...</p>
     </div>
-    <!-- Прогресс-бар отображается, если isDownloading == true -->
+
+    <!-- Прогресс-бар отображается, если идет загрузка (isDownloading == true) -->
     <transition name="fade">
       <div v-if="isDownloading" class="progress-container">
         <div class="progress-bar">
           <div class="progress" :style="{ width: progress + '%' }"></div>
         </div>
-        <p>
+        <p class="progress-text">
           {{ progress.toFixed(2) }}% | {{ downloadedMB }} MB из {{ totalMB }} MB | Скорость:
           {{ speed }} MB/s
         </p>
+      </div>
+    </transition>
+
+    <!-- Сообщение "Загрузка завершена" отображается, когда isComplete == true -->
+    <transition name="fade">
+      <div v-if="isComplete" class="completion">
+        <p>Загрузка завершена!</p>
       </div>
     </transition>
   </div>
@@ -30,7 +38,8 @@ export default {
       downloadedMB: 0,
       totalMB: 0,
       speed: 0,
-      isDownloading: false
+      isDownloading: false,
+      isComplete: false
     }
   },
   mounted() {
@@ -41,11 +50,17 @@ export default {
       const socket = io('http://localhost:3000')
 
       socket.on('download-progress', (data) => {
-        this.isDownloading = true // Устанавливаем флаг, когда начинается загрузка
+        this.isDownloading = true
+        this.isComplete = false
         this.progress = data.progress
         this.downloadedMB = (data.downloadedBytes / 1024 / 1024).toFixed(2)
         this.totalMB = (data.totalBytes / 1024 / 1024).toFixed(2)
-        this.speed = (data.speed / 1024).toFixed(2) // Преобразование скорости в KB/s
+        this.speed = (data.speed / 1024).toFixed(2)
+      })
+
+      socket.on('download-complete', () => {
+        this.isDownloading = false
+        this.isComplete = true
       })
     }
   }
@@ -53,29 +68,6 @@ export default {
 </script>
 
 <style scoped>
-.loader {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  height: 100vh;
-  color: white;
-}
-
-.progress-bar {
-  width: 80%;
-  background-color: #333;
-  border-radius: 5px;
-  overflow: hidden;
-  margin-bottom: 10px;
-}
-
-.progress {
-  height: 10px;
-  background-color: lime;
-  transition: width 0.2s;
-}
-
 .loader {
   display: flex;
   flex-direction: column;
@@ -95,7 +87,7 @@ export default {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background-color: #32cd32; /* Lime green */
+  background-color: #32cd32; /* Ярко-зеленый цвет */
   animation: pulse 1.5s infinite ease-in-out;
   margin-bottom: 15px;
 }
@@ -103,28 +95,16 @@ export default {
 @keyframes pulse {
   0% {
     transform: scale(0.9);
-    background-color: #005f00; /* Darker green */
+    background-color: #005f00; /* Темно-зеленый цвет */
   }
   50% {
     transform: scale(1.1);
-    background-color: #32cd32; /* Bright green */
+    background-color: #32cd32; /* Яркий зеленый цвет */
   }
   100% {
     transform: scale(0.9);
     background-color: #005f00;
   }
-}
-
-.preparation p {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.progress-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
 }
 
 .progress-bar {
@@ -135,13 +115,23 @@ export default {
   margin-bottom: 10px;
 }
 
+.progress-text {
+  text-align: center;
+}
+
 .progress {
   height: 10px;
   background-color: lime;
   transition: width 0.2s;
 }
 
-/* Fade transition between preparation and download progress */
+.completion p {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: lime;
+  margin-top: 20px;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s ease-in-out;
