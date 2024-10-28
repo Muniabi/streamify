@@ -49,7 +49,7 @@ export default {
       try {
         // Отправляем запрос на сервер для загрузки видео
         const response = await fetch(
-          `http://147.45.68.254:3000/download?url=${encodeURIComponent(url)}`
+          `http://localhost:3000/download?url=${encodeURIComponent(url)}` // поменять ip
         )
 
         if (!response.ok) {
@@ -58,7 +58,7 @@ export default {
 
         const data = await response.json()
         if (data.videoId) {
-          const videoUrl = `http://147.45.68.254:3000/videos/${data.videoId}.mp4`
+          const videoUrl = `http://localhost:3000/videos/${data.videoId}.mp4` // поменять ip
           this.currentVideoUrl = videoUrl
           // Добавляем новое видео в историю
           this.videoHistory.unshift({ url: videoUrl })

@@ -6,7 +6,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { Server } from 'socket.io'
 import http from 'http'
-import ffmpeg from 'fluent-ffmpeg' // Импортируем fluent-ffmpeg
+import ffmpeg from 'fluent-ffmpeg'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
