@@ -3,7 +3,7 @@
     <!-- Пульсирующий круг и текст "Идет подготовка..." отображается, если isDownloading == false и isComplete == false -->
     <div v-if="!isDownloading && !isComplete" class="preparation">
       <div class="pulse-circle"></div>
-      <p>Идет подготовка...</p>
+      <p>{{ preparationTexts[currentPreparationIndex] }}</p>
     </div>
 
     <!-- Прогресс-бар отображается, если идет загрузка (isDownloading == true) -->
@@ -39,11 +39,28 @@ export default {
       totalMB: 0,
       speed: 0,
       isDownloading: false,
-      isComplete: false
+      isComplete: false,
+      preparationTexts: [
+        'Идет подготовка...',
+        'Подготавливаем ваше видео...',
+        'Скоро начнется загрузка...',
+        'Пожалуйста, подождите...',
+        'Загрузка данных, оставайтесь с нами...',
+        'Обработка вашего запроса...',
+        'Собираем информацию...',
+        'Подготавливаем все необходимое...',
+        'Проверяем готовность...',
+        'Загрузка в процессе, чуть-чуть терпения...',
+        'Скоро начнется загрузка, не отключайтесь...',
+        'Ваше видео почти готово к загрузке...',
+        'Держитесь, загрузка скоро начнется...'
+      ],
+      currentPreparationIndex: 0
     }
   },
   mounted() {
     this.initSocket()
+    this.startPreparationTextRotation()
   },
   methods: {
     initSocket() {
@@ -62,6 +79,14 @@ export default {
         this.isDownloading = false
         this.isComplete = true
       })
+    },
+    startPreparationTextRotation() {
+      setInterval(() => {
+        if (!this.isDownloading && !this.isComplete) {
+          this.currentPreparationIndex =
+            (this.currentPreparationIndex + 1) % this.preparationTexts.length
+        }
+      }, 5000)
     }
   }
 }
@@ -73,11 +98,16 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  height: 100vh;
   color: white;
 }
 
 .preparation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.progress-container {
   display: flex;
   flex-direction: column;
   align-items: center;
