@@ -133,9 +133,12 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 video {
+  width: 1000px;
+  height: auto;
   max-width: 80%;
   max-height: 600px;
   border-radius: 10px;

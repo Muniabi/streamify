@@ -8,7 +8,11 @@
       <VideoForm @video-url-submitted="handleVideoUrl" class="videoForm" />
       <Loader v-if="loading" :isDownloading="isDownloading" />
       <!-- Основной видеоплеер -->
-      <VideoPlayer v-if="!loading && currentVideoUrl" :videoUrl="currentVideoUrl" />
+      <VideoPlayer
+        v-if="!loading && currentVideoUrl"
+        :videoUrl="currentVideoUrl"
+        class="videoPlayer"
+      />
       <!-- История загруженных видео -->
       <div class="video-history" v-if="videoHistory.length > 0">
         <h2 class="video-history-header">История загруженных видео:</h2>
@@ -130,6 +134,11 @@ main {
 
 .videoForm {
   margin-block: 5rem;
+}
+
+.videoPlayer {
+  width: 100%;
+  height: auto;
 }
 
 /* Стили для истории видео */
