@@ -136,7 +136,8 @@ export default {
 }
 
 video {
-  max-width: 100%;
+  max-width: 80%;
+  max-height: 600px;
   border-radius: 10px;
 }
 

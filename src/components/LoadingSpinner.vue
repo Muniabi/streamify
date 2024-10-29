@@ -87,7 +87,7 @@ export default {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background-color: #32cd32; /* Ярко-зеленый цвет */
+  background-color: #32cd32;
   animation: pulse 1.5s infinite ease-in-out;
   margin-bottom: 15px;
 }
@@ -95,11 +95,11 @@ export default {
 @keyframes pulse {
   0% {
     transform: scale(0.9);
-    background-color: #005f00; /* Темно-зеленый цвет */
+    background-color: #005f00;
   }
   50% {
     transform: scale(1.1);
-    background-color: #32cd32; /* Яркий зеленый цвет */
+    background-color: #32cd32;
   }
   100% {
     transform: scale(0.9);
