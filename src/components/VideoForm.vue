@@ -7,7 +7,7 @@
         placeholder="Введите URL-адрес видео на YouTube"
         class="url-input"
       />
-      <button type="submit" class="submit-button">Load Video</button>
+      <button type="submit" class="submit-button">Загруить</button>
     </form>
   </div>
 </template>
@@ -68,9 +68,11 @@ const submitForm = () => {
   color: white;
   border: none;
   cursor: pointer;
+  transition: 0.2s all;
 }
 
 .submit-button:hover {
-  background-color: #2583ed;
+  background-color: #2b8eff;
+  box-shadow: 0 0 8px #2583ed;
 }
 </style>
