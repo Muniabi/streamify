@@ -63,6 +63,18 @@ node app.js
 npm run build
 ```
 
+```sh
+cd server/
+```
+
+```sh
+node app.js
+```
+
+```sh
+npm start
+```
+
 ## Файловая структура проекта
 
 ```
