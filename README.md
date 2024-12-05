@@ -49,6 +49,14 @@ npm install
 npm run dev
 ```
 
+```sh
+cd server/
+```
+
+```sh
+node app.js
+```
+
 ## Компиляция и минимизация для продакшена
 
 ```sh
@@ -65,8 +73,8 @@ streamify/
 ├── src/
 │   ├── assets/
 │   │   └── main.css        # Основные стили проекта
-│   ├── components/       
-│   │   ├── LoadingSpinner.vue   # Лодер пока видео скачивается                                                                                                                                   
+│   ├── components/
+│   │   ├── LoadingSpinner.vue   # Лодер пока видео скачивается
 │   │   ├── VideoPlayer.vue     # Компонент для проигрывания видео
 │   │   └── VideoForm.vue       # Форма для ввода ссылки на видео
 │   │   └── UserCounter.vue    # Счетчик пользователей на сайте
